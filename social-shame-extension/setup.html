@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brutal Friction - Setup</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☢️</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #000000;
+      color: #ffffff;
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 50%;
+      /* background: 
+        radial-gradient(ellipse at 20% 80%, rgba(255, 50, 50, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(255, 100, 0, 0.1) 0%, transparent 50%); */
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      animation: slideUp 0.8s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+      display: inline-block;
+      position: relative;
+    }
+
+    .logo-icon::before {
+      content: '☢️';
+      font-size: 48px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 2px solid rgba(255, 100, 100, 0.3);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.5;
+      }
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 16px;
+      font-weight: 300;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 40px;
+      backdrop-filter: blur(20px);
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .step-dot.active {
+      background: #ffffff;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .step-dot.completed {
+      background: #ff6b6b;
+    }
+
+    .step {
+      display: none;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .step-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .step-description {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 16px;
+      font-family: 'Space Grotesk', sans-serif;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #ffffff;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .time-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .time-display {
+      text-align: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .time-value {
+      font-size: 48px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .time-unit {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 8px;
+    }
+
+    .time-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .time-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .time-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+
+    .time-presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .preset-btn {
+      flex: 1;
+      min-width: 60px;
+      padding: 10px;
+      font-size: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .preset-btn.active {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 16px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+    }
+
+    .btn-primary {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .warning-box {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .warning-box h4 {
+      color: #ff6b6b;
+      font-size: 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .warning-box p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .complete-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: rgba(255, 107, 107, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .sites-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .site-tag {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <h1>Brutal Friction</h1>
+      <p class="subtitle">Social accountability for self-control</p>
+    </div>
+
+    <div class="card">
+      <div class="step-indicator">
+        <div class="step-dot active" data-step="1"></div>
+        <div class="step-dot" data-step="2"></div>
+        <div class="step-dot" data-step="3"></div>
+        <div class="step-dot" data-step="4"></div>
+      </div>
+
+      <!-- Step 1: Name -->
+      <div class="step active" data-step="1">
+        <h2 class="step-title">What's your name?</h2>
+        <p class="step-description">This will be used in accountability messages.</p>
+        
+        <div class="form-group">
+          <label for="userName">Your name</label>
+          <input type="text" id="userName" placeholder="Enter your name" autocomplete="name">
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" id="step1Next" disabled>Continue</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Friend's email -->
+      <div class="step" data-step="2">
+        <h2 class="step-title">Accountability Partner</h2>
+        <p class="step-description">Enter the email of someone who's judgement you fear. I suggest your boss, or a family member who likes to poke fun at your shortcomings. They'll receive a message if you try to cheat - answer truthfully.</p>
+        
+        <div class="form-group">
+          <label for="friendEmail">Friend's email</label>
+          <input type="email" id="friendEmail" placeholder="friend@example.com" autocomplete="email">
+        </div>
+
+        <div class="warning-box">
+          <h4 style="text-align: center">☢️ The Brutal Truth</h4>
+          <p>If you uninstall this extension to bypass the blocker, your friend will receive an embarrassing message about your social media usage.
+            IF YOU DO NOT ANSWER SERIOUSLY, UNINSTALL NOW. You are clearly not dedicated enough, and should resort to doomscrolling forevermore.</p>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-secondary" id="step2Back">Back</button>
+          <button class="btn btn-primary" id="step2Next" disabled>Continue</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Time limit -->
+      <div class="step" data-step="3">
+        <h2 class="step-title">Set Your Limit</h2>
+        <p class="step-description">How long can you spend on each site before the blocker activates?</p>
+        
+        <div class="time-selector">
+          <div class="time-display">
+            <div class="time-value" id="timeValue">10</div>
+            <div class="time-unit" id="timeUnit">minutes</div>
+          </div>
+          
+          <input type="range" class="time-slider" id="timeSlider" min="1" max="240" value="10">
+          
+          <div class="time-presets">
+            <button class="preset-btn" data-minutes="5">5 min</button>
+            <button class="preset-btn active" data-minutes="10">10 min</button>
+            <button class="preset-btn" data-minutes="30">30 min</button>
+            <button class="preset-btn" data-minutes="60">1 hour</button>
+            <button class="preset-btn" data-minutes="120">2 hours</button>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-secondary" id="step3Back">Back</button>
+          <button class="btn btn-primary" id="step3Next">Continue</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Complete -->
+      <div class="step" data-step="4">
+        <div class="complete-icon">💪</div>
+        <h2 class="step-title">Say goodbye to doomscrolling.</h2>
+        <p class="step-description">Brutal Friction is now active. The following sites are being tracked:</p>
+        
+        <div class="sites-list">
+          <span class="site-tag">X (Twitter)</span>
+          <span class="site-tag">Instagram</span>
+          <span class="site-tag">Reddit</span>
+          <span class="site-tag">TikTok</span>
+          <span class="site-tag">YouTube</span>
+          <span class="site-tag">Facebook</span>
+        </div>
+
+        <p class="step-description">You can remove/add sites in the settings.</p>
+
+        <div class="warning-box">
+          <h4>☢️ CRITICAL</h4>
+          <p>Uninstalling this extension will trigger the email protocol. You'll have 24 hours to complete a hash challenge, or your accountability partner will be notified with a message that won't exactly paint you in a positive light.</p>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" id="closeSetup">Start Browsing</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="setup.js"></script>
+</body>
+</html>

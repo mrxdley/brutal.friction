@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brutal Friction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 340px;
+      min-height: 200px;
+      background: #0a0a0a;
+      color: #ffffff;
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+    }
+
+    /* Hash Gate Screen */
+    #hashGate {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .gate-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .gate-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .gate-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .hash-canvas-container {
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      width: 100%;
+    }
+
+    #hashCanvas {
+      display: block;
+      width: 100%;
+    }
+
+    .hash-input {
+      width: 100%;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(0,0,0,0.4);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .hash-input:focus {
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    .hash-input.error {
+      border-color: #ff6b6b;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .gate-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      background: #ffffff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .gate-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255,255,255,0.2);
+    }
+
+    /* Main Content (hidden until hash verified) */
+    #mainContent {
+      display: none;
+      padding: 20px;
+    }
+
+    #mainContent.active {
+      display: block;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo {
+      font-size: 24px;
+    }
+
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .status {
+      font-size: 11px;
+      color: #4ecdc4;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.05);
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: rgba(255,255,255,0.6);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: rgba(255,255,255,0.1);
+      color: #ffffff;
+    }
+
+    .tab:hover:not(.active) {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Stats Panel */
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 12px;
+    }
+
+    .time-limit-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .time-limit-value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .time-limit-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .site-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .site-stat {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+    }
+
+    .site-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .site-icon {
+      font-size: 14px;
+    }
+
+    .site-name {
+      font-size: 13px;
+    }
+
+    .site-time {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .time-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .time-text.warning { color: #ffbe0b; }
+    .time-text.danger { color: #ff6b6b; }
+
+    .progress-bar {
+      width: 50px;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #4ecdc4;
+      border-radius: 2px;
+    }
+
+    .progress-fill.warning { background: #ffbe0b; }
+    .progress-fill.danger { background: #ff6b6b; }
+
+    .monthly-total {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+    }
+
+    .monthly-value {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff6b6b, #ffa500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .monthly-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+
+    /* Settings Panel */
+    .setting-group {
+      margin-bottom: 20px;
+    }
+
+    .setting-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .setting-input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .setting-input:focus {
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .time-setting {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .time-display {
+      font-size: 24px;
+      font-weight: 700;
+      min-width: 80px;
+    }
+
+    .time-slider {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.1);
+      outline: none;
+    }
+
+    .time-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      background: #4ecdc4;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .save-btn:hover {
+      opacity: 0.9;
+    }
+
+    .save-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Sites Panel */
+    .sites-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .site-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+    }
+
+    .site-item-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .site-item-icon {
+      font-size: 16px;
+    }
+
+    .site-item-name {
+      font-size: 13px;
+    }
+
+    /* Toggle Switch */
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.2);
+      border-radius: 24px;
+      transition: 0.3s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: #4ecdc4;
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .add-site-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px dashed rgba(255,255,255,0.2);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.6);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-site-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.3);
+      color: #fff;
+    }
+
+    /* Add Site Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 20px;
+      width: 300px;
+    }
+
+    .modal h3 {
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+    }
+
+    .modal-hint {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 16px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .modal-btn.cancel {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .modal-btn.confirm {
+      background: #4ecdc4;
+      color: #000;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .footer-text span {
+      color: #ff6b6b;
+    }
+
+    /* Not Configured State */
+    .not-configured {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .not-configured p {
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 16px;
+    }
+
+    .setup-btn {
+      padding: 12px 24px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255,255,255,0.4);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hash Gate -->
+  <div id="hashGate">
+    <div class="gate-icon">🔒</div>
+    <h2 class="gate-title">Verify Access</h2>
+    <p class="gate-subtitle">Type the hash below to access settings.<br>This prevents impulsive changes.</p>
+    
+    <div class="hash-canvas-container">
+      <canvas id="hashCanvas" width="292" height="60"></canvas>
+    </div>
+    
+    <input type="text" id="hashInput" class="hash-input" placeholder="Enter hash..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    
+    <button id="hashSubmit" class="gate-btn">Unlock Settings</button>
+  </div>
+
+  <!-- Main Content (hidden until hash verified) -->
+  <div id="mainContent">
+    <div class="header">
+      <div class="logo">🔒</div>
+      <div class="header-text">
+        <h1>Brutal Friction</h1>
+        <div class="status">Active</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="stats">Stats</button>
+      <button class="tab" data-tab="settings">Settings</button>
+      <button class="tab" data-tab="sites">Sites</button>
+    </div>
+
+    <!-- Stats Tab -->
+    <div class="tab-panel active" id="statsPanel">
+      <div class="section-title">Daily Limit</div>
+      <div class="time-limit-display">
+        <div>
+          <div class="time-limit-value" id="timeLimitValue">10</div>
+          <div class="time-limit-label">minutes per site</div>
+        </div>
+      </div>
+
+      <div class="section-title">Today's Usage</div>
+      <div class="site-stats" id="siteStats">
+        <div class="empty-state">No activity yet today</div>
+      </div>
+
+      <div class="section-title">This Month</div>
+      <div class="monthly-total">
+        <div class="monthly-value" id="monthlyValue">0m</div>
+        <div class="monthly-label">total time on tracked sites</div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-text">Uninstalling sends a <span>shame message</span></div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-panel" id="settingsPanel">
+      <div class="setting-group">
+        <label class="setting-label">Your Name</label>
+        <input type="text" class="setting-input" id="settingName" placeholder="Your name">
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Accountability Partner Email</label>
+        <input type="email" class="setting-input" id="settingEmail" placeholder="friend@example.com" disabled>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Time Limit Per Site</label>
+        <div class="time-setting">
+          <div class="time-display" id="settingTimeDisplay">10m</div>
+          <input type="range" class="time-slider" id="settingTimeSlider" min="1" max="240" value="10">
+        </div>
+      </div>
+
+      <button class="save-btn" id="saveSettings">Save Changes</button>
+    </div>
+
+    <!-- Sites Tab -->
+    <div class="tab-panel" id="sitesPanel">
+      <div class="sites-list" id="sitesList"></div>
+      <button class="add-site-btn" id="addSiteBtn">+ Add Custom Site</button>
+    </div>
+  </div>
+
+  <!-- Add Site Modal -->
+  <div class="modal-overlay" id="addSiteModal">
+    <div class="modal">
+      <h3>Add Custom Site</h3>
+      <input type="text" class="modal-input" id="newSiteName" placeholder="Site name (e.g., LinkedIn)">
+      <input type="text" class="modal-input" id="newSitePattern" placeholder="Domain pattern (e.g., linkedin.com)">
+      <p class="modal-hint">Use | for multiple domains: twitter.com|x.com</p>
+      <div class="modal-buttons">
+        <button class="modal-btn cancel" id="cancelAddSite">Cancel</button>
+        <button class="modal-btn confirm" id="confirmAddSite">Add Site</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
